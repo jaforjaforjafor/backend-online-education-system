@@ -1,6 +1,7 @@
 const express =require('express');
 const cors=require('cors');
 const { MongoClient } = require('mongodb');
+const ObjectId=require('mongodb').ObjectId;
 require('dotenv').config();
 
 const app =express();
@@ -28,6 +29,13 @@ async function run(){
             const cursor=coursesCollection.find({});
             const courses=await cursor.toArray();
             res.send(courses);
+        });
+        //GET Single Course
+        app.get('/courses/:id',async(req,res)=>{
+            const id =req.params.id;
+            const query ={_id: ObjectId(id)};
+            const course=await coursesCollection.findOne(query);
+            res.json(course);
         })
 
         //post Api
@@ -37,6 +45,13 @@ async function run(){
 
             const result =await coursesCollection.insertOne(course);
             console.log(result);
+            res.json(result);
+        });
+        //delete Api
+        app.delete('/courses/:id',async (req,res)=>{
+            const id=req.params.id;
+            const query={_id:ObjectId(id)};
+            const result=await coursesCollection.deleteOne(query);
             res.json(result);
         })
     }
