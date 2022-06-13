@@ -5,7 +5,7 @@ const ObjectId=require('mongodb').ObjectId;
 require('dotenv').config();
 
 const app =express();
-const port =5000;
+const port =process.env.PORT || 5000;
 
 //middleware
 app.use (cors());
@@ -24,10 +24,12 @@ async function run(){
         await client.connect();
         const database =client.db('onlineEducation');
         const coursesCollection=database.collection('courses');
-        //get Api
+        const studentCollection=database.collection('students');
+
+        //get  course Api
         app.get('/courses',async (req, res)=>{
             const cursor=coursesCollection.find({});
-            const courses=await cursor.toArray();
+            const courses=await cursor.limit(100).toArray();
             res.send(courses);
         });
         //GET Single Course
@@ -38,7 +40,7 @@ async function run(){
             res.json(course);
         })
 
-        //post Api
+        //post course Api
         app.post('/courses', async(req,res)=>{
             const course=req.body;
            console.log('hitting the apppppiiiiii',course);
@@ -47,13 +49,26 @@ async function run(){
             console.log(result);
             res.json(result);
         });
-        //delete Api
+        //delete course Api
         app.delete('/courses/:id',async (req,res)=>{
             const id=req.params.id;
             const query={_id:ObjectId(id)};
             const result=await coursesCollection.deleteOne(query);
             res.json(result);
-        })
+        });
+        //add students api
+        
+        app.post('/students',async (req,res)=>{
+            const cursor=studentCollection.find({});
+            const students=await cursor.limit(100).toArray();
+            res.send(students);
+
+            const studentInformation=req.body;
+            console.log('hitting the students',studentInformation)
+            const result=await studentCollection.insertOne(studentInformation);
+            console.log(result);
+            res.json(result);
+        });
     }
     finally{
         //await client.close();
@@ -62,14 +77,14 @@ async function run(){
         await client.connect();
         const database =client.db('onlineEducation');
         const teachersCollection=database.collection('teachers');
-        //get Api
+        //get teacher Api
         app.get('/teachers',async (req, res)=>{
             const purser=teachersCollection.find({});
-            const teachers=await purser.toArray();
+            const teachers=await purser.limit(100).toArray();
             res.send(teachers);
         })
 
-        //post Api
+        //post teacher Api
         app.post('/teachers', async(req,res)=>{
             const teacher=req.body;
            console.log('hitting the teacher',teacher);
