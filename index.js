@@ -150,7 +150,40 @@ async function run(){
             res.json(result);
         });
 
-        //post users api
+        // getting manage all orders
+        app.get('/manageAllOrders', async (req, res) => {
+            const cursor = purchaseCollection.find({})
+            const manageOrders = await cursor.toArray();
+            res.send(manageOrders);
+        });
+        // update order status
+        app.put('/manageAllOrders/:id', async (req, res) => {
+            const id = req.params.id;
+            const updateStatus = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = { $set: { status: updateStatus.status } };
+            const result = await purchaseCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
+            res.json(result);
+            console.log(result);
+        });
+        //manage Courses
+        app.get('/manageCourses', async (req, res) => {
+            const cursor = coursesCollection.find({});
+            const services = await cursor.toArray();
+            res.send(services);
+        });
+        app.delete('/manageCourses/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await coursesCollection.deleteOne(query);
+            console.log('delete order with id', result);
+            res.json(result);
+        })
 
         //users role  to amdin and user can not be admin
         app.get('/users/:email',async (req,res)=>{
