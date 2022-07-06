@@ -24,7 +24,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 
 async function verifyToken(req,res,next){
-    if(req.headers?.authorization?.startsWith(' Bearer')){
+    if(req.headers?.authorization?.startsWith(' Bearer ')){
         const token=req.headers.authorization.split('')[1];
         try{
             const decodedUser=await admin.auth().verifyIdToken(token);
@@ -224,26 +224,27 @@ async function run(){
 
         });
         //users admin
-        app.put('/users/admin', verifyToken, async(req,res)=>{
+        app.put('/users/admin',  async(req,res)=>{
             const user=req.body;
-            const requester=req.decodedEmail;
-            if(requester){
-                const requesterAccount= await usersCollection.findOne({email:requester});
-                if(requesterAccount.role === 'admin'){
-                    const filter={email:user.email};
+            console.log('put',user);
+            const filter={email:user.email};
             const updateDoc={$set: {role: 'admin'}};
             const result=await usersCollection.updateOne(filter,updateDoc);
             res.json(result);
-                }
-            }
-            else {
-                json({message:'you dont have access to made admin'})
-            }
+                });
+            // const requester=req.decodedEmail;
+            // if(requester){
+            //     const requesterAccount= await usersCollection.findOne({email:requester});
+        //         if(requesterAccount.role === 'admin'){
+                    
             
             
-            
-        
-        });
+        //     }
+        //     else {
+        //         json({message:'you dont have access to made admin'})
+        //     }
+             
+        // });
          // ratings
          app.post('/ratings', async (req, res) => {
             const rating = req.body;
