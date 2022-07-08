@@ -1,18 +1,15 @@
 const express =require('express');
-const cors=require('cors');
 const { MongoClient } = require('mongodb');
-const ObjectId=require('mongodb').ObjectId;
-const admin = require("firebase-admin");
 require('dotenv').config();
+const cors=require('cors');
+
+const ObjectId=require('mongodb').ObjectId;
+
 
 const app =express();
 const port = process.env.PORT ||5000;
 //firebase admin  initialize
-const serviceAccount = require('./online-education-system-firebase-adminsdk.json');
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
 
 //middleware
 app.use (cors());
@@ -21,22 +18,6 @@ app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.fy5ly.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-
-
-async function verifyToken(req,res,next){
-    if(req.headers?.authorization?.startsWith(' Bearer ')){
-        const token=req.headers.authorization.split('')[1];
-        try{
-            const decodedUser=await admin.auth().verifyIdToken(token);
-            req.decodedEmail=decodedUser.email;
-        }
-        catch{
-
-        }
-    }
-
-    next();
-}
 
 
 
@@ -74,14 +55,7 @@ async function run(){
             
             
         });
-        //GET Single Course
-        // app.get('/courses/:id',async(req,res)=>{
-        //     const id =req.params.id;
-        //     const query ={_id: ObjectId(id)};
-        //     const course=await coursesCollection.findOne(query);
-        //     res.json(course);
-        // });
-
+        
         app.post('/courses', async(req,res)=>{
             const course=req.body;
             course.createdAt=new Date();
@@ -110,22 +84,6 @@ async function run(){
             res.json(total);
         });
         
-        //get my course Api
-        // app.get('/myCourses',async (req, res)=>{
-        //     const purser=myCourseCollection.find({});
-        //     const myCourse=await purser.limit(100).toArray();
-        //     res.send(myCourse);
-        // });
-        // //post my course Api
-        // app.post('/myCourses', async(req,res)=>{
-        //     const myCourse=req.body;
-        //     myCourse.createdAt=new Date();
-        //    console.log('hitting the My cOurse',myCourse);
-
-        //     const total =await myCourseCollection.insertOne(myCourse);
-        //     console.log(total);
-        //     res.json(total);
-        // });
         
          //Add purchase API
          app.post('/purchase', async (req, res) => {
@@ -232,19 +190,7 @@ async function run(){
             const result=await usersCollection.updateOne(filter,updateDoc);
             res.json(result);
                 });
-            // const requester=req.decodedEmail;
-            // if(requester){
-            //     const requesterAccount= await usersCollection.findOne({email:requester});
-        //         if(requesterAccount.role === 'admin'){
-                    
-            
-            
-        //     }
-        //     else {
-        //         json({message:'you dont have access to made admin'})
-        //     }
-             
-        // });
+           
          // ratings
          app.post('/ratings', async (req, res) => {
             const rating = req.body;
