@@ -220,6 +220,8 @@ async function run(){
 
         
     }
+    //DB_USER:backendServer
+    //DB_PASS:SvWKeMOBbv2HPkWL
     
 
 run().catch(console.dir);
