@@ -141,7 +141,20 @@ async function run(){
             const result = await coursesCollection.deleteOne(query);
             console.log('delete order with id', result);
             res.json(result);
-        })
+        });
+        //manage teachers
+        app.get('/manageTeachers', async (req, res) => {
+            const cursor = coursesCollection.find({});
+            const services = await cursor.toArray();
+            res.send(services);
+        });
+        app.delete('/manageTeachers/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await coursesCollection.deleteOne(query);
+            console.log('delete order with id', result);
+            res.json(result);
+        });
 
         //users role  to amdin and user can not be admin
         app.get('/users/:email',async (req,res)=>{
