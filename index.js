@@ -144,14 +144,14 @@ async function run(){
         });
         //manage teachers
         app.get('/manageTeachers', async (req, res) => {
-            const cursor = coursesCollection.find({});
+            const cursor = teachersCollection.find({});
             const services = await cursor.toArray();
             res.send(services);
         });
         app.delete('/manageTeachers/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const result = await coursesCollection.deleteOne(query);
+            const result = await teachersCollection.deleteOne(query);
             console.log('delete order with id', result);
             res.json(result);
         });
