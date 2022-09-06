@@ -194,6 +194,14 @@ async function run(){
               
 
         });
+        //get payment for purchase id
+        app.get('/purchase/:id', async(req,res)=>{
+            const id=req.params.id;
+            const query={_id:ObjectId(id)};
+            const result=await purchaseCollection.findOne(query);
+            res.json(result);
+        });
+
         //users admin
         app.put('/users/admin',  async(req,res)=>{
             const user=req.body;
