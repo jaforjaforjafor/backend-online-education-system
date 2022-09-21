@@ -4,6 +4,7 @@ require('dotenv').config();
 const cors=require('cors');
 
 const ObjectId=require('mongodb').ObjectId;
+const stripe=require('stripe')('sk_test_51Le6ClH6WcnbdNiBAlfi4mnwVPwDqU3pLhdQCaDFvfnLpNc9l7n4xxF1ZzFqfCEE3hPeKYQPR7qz1RuiYIW8wjwb00ee7UzlNr')
 
 
 const app =express();
@@ -63,6 +64,21 @@ async function run(){
            const result =await coursesCollection.insertOne(course);
             res.json(result);
         });
+        //payment post
+        app.post('/create-payment-intent',async(req,res)=>{
+            const service=req.body;
+            const price= service.price;
+            const amount=price*100;
+            const paymentIntent=await stripe.paymentIntent.create({
+                amount: amount,
+                currency:'usd',
+                payment_method_types:['card']
+            })
+                res.send({clientSecret:paymentIntent.client_secret})
+
+
+            
+        })
 
         //delete course Api
         
