@@ -1,5 +1,5 @@
 const express =require('express');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ServerApiVersion } = require('mongodb');
 require('dotenv').config();
 const cors=require('cors');
 
@@ -17,9 +17,11 @@ app.use (cors());
 app.use(express.json());
 
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.fy5ly.mongodb.net/?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.wd4dmmj.mongodb.net/?retryWrites=true&w=majority`;
+
+
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
 
@@ -28,28 +30,30 @@ async function run(){
     try{
         await client.connect();
         
-        const database =client.db('onlineEducation');
-        const coursesCollection=database.collection('courses');
-        const teachersCollection=database.collection('teachers');
-        const purchaseCollection=database.collection('purchase');
-        const usersCollection=database.collection('users');
-
-        const ratingCollection = database.collection('ratings');
+        
+        
+        const courseCollection=client.db('online_Education').collection('courses');
+         const teachersCollection=client.db('online_Education').collection('teachers');
+         const purchaseCollection=client.db('online_Education').collection('purchase');
+        const usersCollection=client.db('online_Education').collection('users');
+         const ratingCollection=client.db('online_Education').collection('ratings');
+        
+        
 
         app.post('/courses', async(req,res)=>{
             const course=req.body;
             course.createdAt=new Date();
 
-           const result =await coursesCollection.insertOne(course);
+           const result =await courseCollection.insertOne(course);
             res.json(result);
         });
 
         
         //get  course Api
         app.get('/courses',  async (req, res)=>{
-            const email=req.query.email;
-             const query={email:email};
-                const cursor=coursesCollection.find(query);
+            // const email=req.query.email;
+             const query={};
+                const cursor=courseCollection.find(query);
             const courses=await cursor.toArray();
             res.send(courses);
             
@@ -61,7 +65,7 @@ async function run(){
             const course=req.body;
             course.createdAt=new Date();
 
-           const result =await coursesCollection.insertOne(course);
+           const result =await courseCollection.insertOne(course);
             res.json(result);
         });
         //payment post
@@ -147,14 +151,14 @@ async function run(){
         });
         //manage Courses
         app.get('/manageCourses', async (req, res) => {
-            const cursor = coursesCollection.find({});
+            const cursor = courseCollection.find({});
             const services = await cursor.toArray();
             res.send(services);
         });
         app.delete('/manageCourses/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const result = await coursesCollection.deleteOne(query);
+            const result = await courseCollection.deleteOne(query);
             console.log('delete order with id', result);
             res.json(result);
         });
@@ -171,8 +175,19 @@ async function run(){
             console.log('delete order with id', result);
             res.json(result);
         });
+        app.put('/user/:email', async(req,res)=>{
+            const email=req.params.email;
+            const user =req.body;
+            const filter={email:email}
+            const options={upsert: true};
+            const updateDoc={
+                $set:user,
+            };
+            const result=await usersCollection.updateOne(filter,updateDoc,options);
+            res.send(result);
+        })
 
-        //users role  to amdin and user can not be admin
+       // users role  to amdin and user can not be admin
         app.get('/users/:email',async (req,res)=>{
             const email=req.params.email;
             const query={email:email};
@@ -194,7 +209,7 @@ async function run(){
             res.json(userTotal);
             //get users
             app.get('/users', async (req, res) => {
-                const cursor = usersCollection.find({});
+                const cursor = usersCollection.find().toArray;
                 const users = await cursor.toArray();
                 res.send(users);
             })
@@ -247,10 +262,10 @@ async function run(){
         
         
         
-    }
+     }
     finally{
-        //await client.close();
-    }
+    //     //await client.close();
+    // }
         
         
        
@@ -271,4 +286,4 @@ app.get("/",(req,res)=> {
 
 app.listen(port,()=>{
     console.log(`listening to port ${port}`)
-})
+})}
