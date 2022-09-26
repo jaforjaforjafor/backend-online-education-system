@@ -114,6 +114,14 @@ async function run(){
             const manageOrders = await cursor.toArray();
             res.send(manageOrders);
         });
+        // delete all orders from admin
+        app.delete('/manageAllOrders/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await purchaseCollection.deleteOne(query);
+            console.log('delete order with id', result);
+            res.json(result);
+        });
         // update order status
         app.put('/manageAllOrders/:id', async (req, res) => {
             const id = req.params.id;
@@ -155,6 +163,11 @@ async function run(){
             console.log('delete order with id', result);
             res.json(result);
         });
+        //user information show in admin panel ui
+        app.get('/users') ,async(req,res)=>{
+            const users=await usersCollection.find().toArray();
+            res.send(users);
+        }
 
         //users role  to amdin and user can not be admin
         app.get('/users/:email',async (req,res)=>{
